@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -13,6 +14,8 @@ import (
 	"net/url"
 	"os"
 	"strings"
+
+	"golang.org/x/net/idna"
 )
 
 func GET() {
@@ -149,9 +152,11 @@ func COOKIE() {
 	if err != nil {
 		panic(err)
 	}
-	client := http.Client{Jar: jar}
+	//client := http.Client{Jar: jar}
+	http.DefaultClient = &http.Client{Jar: jar}
 	for i := 0; i < 2; i++ {
-		resp, err := client.Get("http://localhost:18888/cookie")
+		//resp, err := client.Get("http://localhost:18888/cookie")
+		resp, err := http.Get("http://localhost:18888/cookie")
 		if err != nil {
 			panic(err)
 		}
@@ -163,6 +168,64 @@ func COOKIE() {
 	}
 }
 
+func PROXY() {
+	proxyUrl, err := url.Parse("http://localhost:18888")
+	if err != nil {
+		panic(err)
+	}
+	client := http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyUrl)}}
+	resp, err := client.Get("http://github.com")
+	if err != nil {
+		panic(err)
+	}
+	dump, err := httputil.DumpResponse(resp, true)
+	if err != nil {
+		panic(err)
+	}
+	log.Println(string(dump))
+}
+
+func LOCAL() {
+	transport := &http.Transport{}
+	transport.RegisterProtocol("file", http.NewFileTransport(http.Dir(".")))
+	client := http.Client{Transport: transport}
+	resp, err := client.Get("file://./main.go")
+	if err != nil {
+		panic(err)
+	}
+	dump, err := httputil.DumpResponse(resp, true)
+	if err != nil {
+		panic(err)
+	}
+	log.Println(string(dump))
+}
+
+func DELETE() {
+	client := &http.Client{}
+	req, err := http.NewRequest("DELETE", "http://localhost:18888", nil)
+	if err != nil {
+		panic(err)
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	dump, err := httputil.DumpResponse(resp, true)
+	if err != nil {
+		panic(err)
+	}
+	log.Println(string(dump))
+}
+
+func international() {
+	src := "大空"
+	ascii, err := idna.ToASCII(src)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("%s -> %s\n", src, ascii)
+}
+
 func main() {
 	//GET()
 	//GET_Q()
@@ -171,5 +234,9 @@ func main() {
 	//POST_OP()
 	//POST_MULT()
 	//POST_MULT_MIME()
-	COOKIE()
+	//COOKIE()
+	//PROXY()
+	//LOCAL()
+	//DELETE()
+	international()
 }
