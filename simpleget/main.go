@@ -155,7 +155,7 @@ func COOKIE() {
 		if err != nil {
 			panic(err)
 		}
-		dump, err := httputil.DumpRequest(resp, true)
+		dump, err := httputil.DumpResponse(resp, true)
 		if err != nil {
 			panic(err)
 		}
