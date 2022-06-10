@@ -1,4 +1,4 @@
 .idea
-http1.1/ca.crt
-http1.1/server.crt
-http1.1/server.key
+http1.1/*.crt
+http1.1/*.csr
+http1.1/*.key
