@@ -10,7 +10,7 @@ import (
 
 var html []byte
 
-func handlerHtml(w http.ResponseWriter, r *http.Request) {
+func handlerHtmlSSE(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "text/html")
 	w.Write(html)
 }
@@ -56,7 +56,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	http.HandleFunc("/", handlerHtml)
+	http.HandleFunc("/", handlerHtmlSSE)
 	http.HandleFunc("/prime", handlerPrimeSSE)
 	fmt.Println("start http listening :18888")
 	err = http.ListenAndServe(":18888", nil)
